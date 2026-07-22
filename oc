@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+MODEL_FILE="$ROOT_DIR/.opencode/models.env"
+
+if [[ ! -f "$MODEL_FILE" ]]; then
+  printf 'Missing model configuration: %s\n' "$MODEL_FILE" >&2
+  exit 1
+fi
+
+set -a
+# shellcheck disable=SC1090
+source "$MODEL_FILE"
+set +a
+
+: "${OC_FAST_MODEL:?OC_FAST_MODEL is required}"
+: "${OC_MAIN_MODEL:?OC_MAIN_MODEL is required}"
+: "${OC_ARCH_MODEL:?OC_ARCH_MODEL is required}"
+
+exec opencode "$@"

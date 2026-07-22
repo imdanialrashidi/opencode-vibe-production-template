@@ -1,0 +1,215 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  // Models are controlled only by .opencode/models.env and loaded by ./oc.
+  "model": "{env:OC_MAIN_MODEL}",
+  "small_model": "{env:OC_FAST_MODEL}",
+  "default_agent": "build",
+
+  // One delegation layer is enough: primary agent -> fast subagent.
+  "subagent_depth": 1,
+  "share": "disabled",
+  "snapshot": true,
+  "autoupdate": "notify",
+  "formatter": true,
+  "lsp": true,
+
+  // Keep long sessions usable without retaining stale tool output forever.
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "tail_turns": 3,
+    "reserved": 12000
+  },
+  "tool_output": {
+    "max_lines": 600,
+    "max_bytes": 30000
+  },
+
+  "watcher": {
+    "ignore": [
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/.venv/**",
+      "**/vendor/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/coverage/**",
+      "**/target/**",
+      "**/.next/**",
+      "**/.turbo/**",
+      "**/generated/**"
+    ]
+  },
+
+  "permission": {
+    "read": {
+      "*": "allow",
+      "**/.env": "deny",
+      "**/.env.*": "deny",
+      "**/.env.example": "allow",
+      "**/*secret*": "deny",
+      "**/*credential*": "deny",
+      "**/*.pem": "deny",
+      "**/*.key": "deny",
+      "**/docs/private/**": "deny"
+    },
+    "external_directory": "deny",
+    "webfetch": "ask",
+    "websearch": "ask",
+    "doom_loop": "ask",
+    "bash": {
+      "*": "ask",
+      "sudo *": "deny",
+      "rm -rf *": "deny",
+      "git push*": "deny",
+      "git reset --hard*": "deny",
+      "git clean*": "deny",
+      "git checkout -- *": "deny",
+      "docker push*": "deny",
+      "kubectl *": "deny",
+      "terraform apply*": "deny",
+      "vercel deploy*": "deny",
+      "netlify deploy*": "deny",
+      "wrangler deploy*": "deny",
+      "fly deploy*": "deny"
+    }
+  },
+
+  "agent": {
+    "build": {
+      "description": "Primary implementation agent. Builds the smallest production-worthy change and verifies it.",
+      "mode": "primary",
+      "model": "{env:OC_MAIN_MODEL}",
+      "prompt": "{file:.opencode/prompts/build.md}",
+      "steps": 24,
+      "permission": {
+        "edit": "allow",
+        "task": {
+          "*": "deny",
+          "fast": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "risk-review": "allow"
+        },
+        "webfetch": "ask",
+        "websearch": "ask",
+        "bash": {
+          "*": "ask",
+
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "git branch --show-current": "allow",
+
+          "bash scripts/verify.sh*": "allow",
+          "./scripts/verify.sh*": "allow",
+
+          "npm run format:check*": "allow",
+          "npm run typecheck*": "allow",
+          "npm run lint*": "allow",
+          "npm run test*": "allow",
+          "npm test*": "allow",
+          "npm run build*": "allow",
+
+          "pnpm format:check*": "allow",
+          "pnpm typecheck*": "allow",
+          "pnpm lint*": "allow",
+          "pnpm test*": "allow",
+          "pnpm build*": "allow",
+
+          "yarn format:check*": "allow",
+          "yarn typecheck*": "allow",
+          "yarn lint*": "allow",
+          "yarn test*": "allow",
+          "yarn build*": "allow",
+
+          "bun run format:check*": "allow",
+          "bun run typecheck*": "allow",
+          "bun run lint*": "allow",
+          "bun test*": "allow",
+          "bun run build*": "allow",
+
+          "pytest*": "allow",
+          "python -m pytest*": "allow",
+          "ruff check*": "allow",
+          "mypy*": "allow",
+          "go test*": "allow",
+          "go vet*": "allow",
+          "cargo test*": "allow",
+          "cargo clippy*": "allow",
+          "cargo fmt*": "allow",
+
+          "sudo *": "deny",
+          "rm -rf *": "deny",
+          "git push*": "deny",
+          "git reset --hard*": "deny",
+          "git clean*": "deny",
+          "git checkout -- *": "deny",
+          "docker push*": "deny",
+          "kubectl *": "deny",
+          "terraform apply*": "deny",
+          "vercel deploy*": "deny",
+          "netlify deploy*": "deny",
+          "wrangler deploy*": "deny",
+          "fly deploy*": "deny"
+        }
+      }
+    },
+
+    "plan": {
+      "description": "Architecture and risk agent. Produces bounded plans and reviews high-impact changes; does not implement application code.",
+      "mode": "all",
+      "model": "{env:OC_ARCH_MODEL}",
+      "prompt": "{file:.opencode/prompts/plan.md}",
+      "steps": 14,
+      "permission": {
+        "edit": {
+          "*": "deny",
+          "docs/PRODUCT.md": "allow",
+          "docs/ARCHITECTURE.md": "allow",
+          "docs/PLAN.md": "allow"
+        },
+        "task": {
+          "*": "deny",
+          "fast": "allow"
+        },
+        "skill": {
+          "*": "deny",
+          "risk-review": "allow"
+        },
+        "webfetch": "ask",
+        "websearch": "ask",
+        "bash": {
+          "*": "deny",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "git branch --show-current": "allow"
+        }
+      }
+    },
+
+    "general": { "disable": true },
+    "explore": { "disable": true },
+    "scout": { "disable": true },
+
+    "fast": {
+      "description": "Cheap bounded subagent for mechanical, low-risk work only.",
+      "mode": "subagent",
+      "model": "{env:OC_FAST_MODEL}",
+      "prompt": "{file:.opencode/prompts/fast.md}",
+      "steps": 8,
+      "permission": {
+        "edit": "allow",
+        "bash": "deny",
+        "task": "deny",
+        "skill": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "external_directory": "deny"
+      }
+    }
+  }
+}
