@@ -18,4 +18,4 @@ set +a
 : "${OC_MAIN_MODEL:?OC_MAIN_MODEL is required}"
 : "${OC_ARCH_MODEL:?OC_ARCH_MODEL is required}"
 
-exec opencode "$@"
+exec opencode --auto "$@"

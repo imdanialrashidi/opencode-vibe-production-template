@@ -82,3 +82,36 @@ Do not use this ladder to remove validation, authorization, accessibility, obser
 - Critical auth, authorization, payment, subscription, destructive-action, and migration paths need positive, negative, tampering, retry/idempotency, and failure-path coverage.
 - Use a small test pyramid appropriate to the repository; do not pursue arbitrary 100% coverage.
 - A task is done only when acceptance criteria are met, relevant checks pass, no known blocker remains, and behavior/architecture docs are updated when necessary.
+
+## Autonomous execution policy
+
+The build agent owns routine implementation decisions.
+
+- Continue working until the requested scope and acceptance criteria are complete.
+- Do not ask for approval between slices, files, test fixes, dependency
+  installations, refactors, or reversible implementation choices.
+- When several reasonable options exist, choose the smallest, safest,
+  most reversible option consistent with the existing architecture.
+- Record the decision briefly and continue.
+- After each slice, run the relevant checks, update the current plan, and
+  continue to the next requested slice without waiting for user confirmation.
+- Do not stop merely to provide a progress report.
+- A test-environment limitation is not a reason to stop. Use the smallest
+  honest test layer capable of verifying the behavior.
+- Do not modify production behavior only to satisfy an inaccurate test harness.
+- Do not weaken, skip, delete, or falsify tests to obtain a green result.
+- If a browser/framework behavior cannot be verified reliably in jsdom,
+  keep structural tests in jsdom and verify the actual behavior in a real
+  browser test.
+
+Stop only when one of these hard blockers exists:
+
+1. A required credential, secret, external account, or unavailable service is missing.
+2. The next action would affect production, real users, real money, or external infrastructure.
+3. The next action is destructive or practically irreversible.
+4. Accepted requirements directly contradict each other and no reversible
+   interpretation is possible.
+5. A security boundary cannot be implemented safely with the available information.
+
+When stopped by a hard blocker, report the exact blocker and the minimum user
+action required. Do not present routine engineering choices for approval.

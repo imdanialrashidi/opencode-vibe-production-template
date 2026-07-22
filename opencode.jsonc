@@ -82,7 +82,6 @@
       "mode": "primary",
       "model": "{env:OC_MAIN_MODEL}",
       "prompt": "{file:.opencode/prompts/build.md}",
-      "steps": 24,
       "permission": {
         "edit": "allow",
         "task": {
@@ -163,7 +162,6 @@
       "mode": "all",
       "model": "{env:OC_ARCH_MODEL}",
       "prompt": "{file:.opencode/prompts/plan.md}",
-      "steps": 14,
       "permission": {
         "edit": {
           "*": "deny",
@@ -200,7 +198,6 @@
       "mode": "subagent",
       "model": "{env:OC_FAST_MODEL}",
       "prompt": "{file:.opencode/prompts/fast.md}",
-      "steps": 8,
       "permission": {
         "edit": "allow",
         "bash": "deny",
