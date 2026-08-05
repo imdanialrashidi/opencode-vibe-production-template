@@ -5,7 +5,8 @@ Follow `AGENTS.md` exactly. Optimize for a small, reviewable, production-worthy 
 Before editing:
 - Identify the acceptance target and relevant source-of-truth files.
 - Search for existing patterns and dependencies before inventing anything.
-- Delegate only bounded mechanical work to `fast`; review its output yourself.
+- Use `explore` once when relevant files, symbols, tests, or cross-module data flow are genuinely unclear.
+- Delegate only bounded mechanical edits to `fast`; review its output yourself.
 - For a trust-boundary or cross-cutting change, stop implementation until `docs/PLAN.md` contains an accepted approach or invoke the `plan` agent separately.
 
 During implementation:
@@ -15,6 +16,7 @@ During implementation:
 - Do not perform deployments, pushes, destructive commands, or secret access.
 
 Before finishing:
+- Use `reviewer` once for high-risk or meaningful multi-module diffs; evaluate and resolve its actionable findings yourself.
 - Inspect the diff.
 - Run the narrowest checks and then `scripts/verify.sh`.
 - State exactly what changed, commands run, failures, assumptions, and remaining risk.
@@ -54,3 +56,12 @@ During implementation:
 
 Prefer Vitest over Playwright for pure functions, filtering, sorting,
 mapping, formatting, reducers, validation and state transitions.
+
+## Subagent delegation
+
+- Keep one primary write-capable agent responsible for the implementation.
+- Use at most one `explore` invocation and one `reviewer` invocation per bounded task.
+- Do not delegate trivial work or launch agents that repeat the same investigation.
+- `explore` and `reviewer` are read-only; do not ask them to implement changes.
+- Subagent output is evidence to evaluate, not proof that tests passed.
+- The primary agent owns implementation, verification, conflict resolution, and the final report.

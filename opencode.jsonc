@@ -6,7 +6,7 @@
   "small_model": "{env:OC_FAST_MODEL}",
   "default_agent": "build",
 
-  // Primary agent -> one bounded mechanical subagent. No nested agent trees.
+  // Primary agents may delegate bounded read-heavy work. No nested agent trees.
   "subagent_depth": 1,
 
   "share": "disabled",
@@ -410,7 +410,10 @@
           ".opencode/Plans/**": "allow"
         },
 
-        "task": "deny",
+        "task": {
+          "*": "deny",
+          "explore": "allow"
+        },
 
         "skill": {
           "*": "deny",
@@ -447,8 +450,74 @@
     },
 
     "general": { "disable": true },
-    "explore": { "disable": true },
     "scout": { "disable": true },
+
+    "explore": {
+      "description": "Fast read-only repository exploration for locating relevant files, symbols, tests, contracts and cross-module data flow. Use only when discovery would materially reduce primary-agent context. Return concise evidence with exact paths and symbols; never modify files.",
+      "mode": "subagent",
+      "model": "{env:OC_FAST_MODEL}",
+      "variant": "{env:OC_FAST_VARIANT}",
+      "reasoningEffort": "{env:OC_FAST_REASONING_EFFORT}",
+      "steps": 16,
+      "prompt": "{file:.opencode/prompts/explore.md}",
+
+      "tools": {
+        "context7_*": false,
+        "playwright_*": false
+      },
+
+      "permission": {
+        "edit": "deny",
+        "bash": "deny",
+        "task": "deny",
+        "skill": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny",
+        "external_directory": "deny",
+        "context7_*": "deny",
+        "playwright_*": "deny"
+      }
+    },
+
+    "reviewer": {
+      "description": "Independent read-only reviewer for a completed implementation diff. Use for high-risk or multi-module changes to find actionable correctness, security, data-integrity, performance and missing-test problems supported by exact repository evidence. Never modify files.",
+      "mode": "subagent",
+      "model": "{env:OC_REVIEW_MODEL}",
+      "variant": "{env:OC_REVIEW_VARIANT}",
+      "reasoningEffort": "{env:OC_REVIEW_REASONING_EFFORT}",
+      "steps": 24,
+      "prompt": "{file:.opencode/prompts/reviewer.md}",
+
+      "tools": {
+        "context7_*": false,
+        "playwright_*": false
+      },
+
+      "permission": {
+        "edit": "deny",
+        "task": "deny",
+        "question": "deny",
+        "external_directory": "deny",
+        "context7_*": "deny",
+        "playwright_*": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+
+        "skill": {
+          "*": "deny",
+          "risk-review": "allow"
+        },
+
+        "bash": {
+          "*": "deny",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git show*": "allow",
+          "git log*": "allow"
+        }
+      }
+    },
 
     "fast": {
       "description": "Bounded subagent for mechanical, low-risk repository work delegated by the primary agent.",
