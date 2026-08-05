@@ -365,7 +365,9 @@
 
         "task": {
           "*": "deny",
-          "fast": "allow"
+          "fast": "allow",
+          "explore": "allow",
+          "reviewer": "allow"
         },
 
         "skill": {
