@@ -4,10 +4,23 @@
 !.env.example
 *.pem
 *.key
+*.p12
+*.pfx
+*.jks
+*.keystore
 
 # Confidential project/client material
 docs/private/**
 !docs/private/.gitkeep
+
+# Pi local runtime and installed project packages
+.pi/npm/
+.pi/git/
+.pi/sessions/
+.pi/cache/
+.pi/auth.json
+.pi/models.json
+.pi/trust.json
 
 # Dependencies and environments
 node_modules/
@@ -22,6 +35,9 @@ coverage/
 target/
 .next/
 .turbo/
+.vite/
+playwright-report/
+test-results/
 *.log
 
 # Editors / OS
