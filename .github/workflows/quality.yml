@@ -21,6 +21,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Validate Pi workflow
+        run: bash scripts/pi-doctor.sh --ci
+
       - name: Detect project types
         id: detect
         shell: bash
